@@ -100,7 +100,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1)}
   <div class="hdr">
     <div>
       <h1>Olist E-commerce Sales Dashboard</h1>
-      <p>Brazilian E-Commerce Analysis &middot; Project 1 &middot; Navjot Kaur</p>
+      <p>Brazilian E-Commerce Analysis</p>
     </div>
     <div class="hdr-date"><span>&#128197;</span><span>2016 &ndash; 2018</span></div>
   </div>
@@ -120,7 +120,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1)}
       <div class="ktrend up">&#8593; 8&times; growth since 2016</div>
     </div>
     <div class="kcard">
-      <div class="ktop"><span class="klabel">Total Orders</span><div class="kicon" style="background:#e6f7f1">&#128Shopping;</div></div>
+      <div class="ktop"><span class="klabel">Total Orders</span><div class="kicon" style="background:#e6f7f1">🛍️</div></div>
       <div class="kval" id="kv-ord">96,461</div>
       <div class="ktrend up">&#8593; Delivered orders only</div>
     </div>
@@ -166,8 +166,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1)}
         <div class="ctitle"><div class="cicon" style="background:#fef3e0">&#128179;</div>Payment Method Breakdown</div>
         <span class="cbadge" style="background:#fef3e0;color:#EF9F27">4 types</span>
       </div>
-      <div class="dwrap">
-        <canvas id="donutChart" width="140" height="140"></canvas>
+      <div class="dwrap" style="align-items:center;justify-content:center;height:300px">
+        <canvas id="donutChart" width="100" height="100"></canvas>
         <div class="dlegend" id="donut-legend"></div>
       </div>
     </div>
@@ -180,7 +180,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1)}
     <div class="icard"><div class="ival" id="i3v" style="color:#e05c3a">8.1%</div><div class="ilabel" id="i3l">Late delivery rate</div><div class="itrack"><div class="ifill" id="i3b" style="width:8.1%;background:#e05c3a"></div></div></div>
   </div>
 
-  <div class="footer">Built with Python &middot; SQL &middot; Excel &middot; Power BI &nbsp;|&nbsp; Navjot Kaur &middot; IU Berlin &middot; 2026</div>
+  
 </div>
 
 <script>
@@ -357,7 +357,7 @@ var donutChart = new Chart(document.getElementById('donutChart').getContext('2d'
     labels:PAY_NAMES,
     datasets:[{data:DATA.all.donut, backgroundColor:PAY_COLORS, borderWidth:2, borderColor:'#fff', hoverOffset:4}]
   },
-  options:{cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a3a5c',callbacks:{label:function(c){return ' '+c.label+': '+c.raw+'%'}}}}}
+  options:{responsive:true,maintainAspectRatio:true,cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a3a5c',callbacks:{label:function(c){return ' '+c.label+': '+c.raw+'%'}}}}}
 });
 
 // INIT
