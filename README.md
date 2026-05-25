@@ -2,7 +2,7 @@
 
 **Tools:** Python · MySQL · Microsoft Excel · Power BI  
 **Dataset:** [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) — Kaggle  
-**Period:** September 2016 – August 2018  
+**Project Duration:** October 2025 – January 2026  
 
 ## Project Overview
 
