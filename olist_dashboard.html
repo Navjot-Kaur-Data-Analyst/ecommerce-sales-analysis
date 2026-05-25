@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Olist E-commerce Sales Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#185FA5;--blue-dark:#1a3a5c;--blue-pale:#e8f2fb;
+  --green:#1D9E75;--green-pale:#e6f7f1;
+  --amber:#EF9F27;--amber-pale:#fef3e0;
+  --coral:#e05c3a;
+  --bg:#f4f6fa;--card:#fff;--border:#e2e8f0;
+  --t1:#1a2433;--t2:#64748b;--t3:#94a3b8;
+  --r:12px;--r-sm:8px;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1)}
+.db{max-width:1280px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#1a3a5c 0%,#185FA5 60%,#2d7dd2 100%);border-radius:var(--r);padding:22px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(24,95,165,.3);overflow:hidden;position:relative}
+.hdr::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:rgba(255,255,255,.05);border-radius:50%}
+.hdr h1{font-size:22px;font-weight:600;color:#fff;letter-spacing:-.3px}
+.hdr p{font-size:13px;color:rgba(255,255,255,.7);margin-top:3px}
+.hdr-date{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:8px 16px}
+.hdr-date span{font-size:13px;color:rgba(255,255,255,.9);font-weight:500}
+
+/* FILTER */
+.frow{display:flex;align-items:center;gap:10px}
+.flabel{font-size:13px;color:var(--t2);font-weight:500}
+.fbtn{padding:7px 18px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.fbtn:hover{border-color:var(--blue);color:var(--blue)}
+.fbtn.active{background:var(--blue-pale);border-color:var(--blue);color:var(--blue);font-weight:600}
+
+/* KPI */
+.kgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kcard{background:var(--card);border-radius:var(--r);padding:20px;box-shadow:var(--sh);border:1px solid var(--border);transition:transform .2s,box-shadow .2s}
+.kcard:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+.ktop{display:flex;align-items:center;justify-content:space-between}
+.klabel{font-size:12px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;font-weight:500}
+.kicon{width:34px;height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:16px}
+.kval{font-size:28px;font-weight:600;color:var(--t1);letter-spacing:-.5px;line-height:1;margin:10px 0 6px}
+.ktrend{font-size:12px;font-weight:500}
+.up{color:var(--green)}.note{color:var(--t3)}
+
+/* CHARTS */
+.crow{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
+.brow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cc{background:var(--card);border-radius:var(--r);padding:20px;box-shadow:var(--sh);border:1px solid var(--border)}
+.chdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.ctitle{font-size:14px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:8px}
+.cicon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.cbadge{font-size:11px;padding:3px 10px;border-radius:10px;background:var(--blue-pale);color:var(--blue);font-weight:500}
+
+/* BARS */
+.blist{display:flex;flex-direction:column;gap:10px}
+.bitem{display:flex;align-items:center;gap:10px}
+.brank{width:18px;height:18px;border-radius:50%;background:var(--bg);font-size:10px;font-weight:600;color:var(--t2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.blabel{font-size:12px;color:var(--t2);width:120px;flex-shrink:0}
+.btrack{flex:1;height:10px;background:var(--bg);border-radius:5px;overflow:hidden}
+.bfill{height:100%;border-radius:5px;transition:width .6s ease}
+.bval{font-size:11px;color:var(--t2);width:50px;text-align:right;flex-shrink:0;font-family:'DM Mono',monospace}
+
+/* DONUT */
+.dwrap{display:flex;align-items:center;gap:20px}
+.dlegend{display:flex;flex-direction:column;gap:10px;flex:1}
+.litem{display:flex;align-items:center;gap:8px}
+.ldot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.linfo{flex:1}
+.lrow{display:flex;justify-content:space-between}
+.lname{font-size:12px;color:var(--t2)}
+.lpct{font-size:14px;font-weight:600;color:var(--t1)}
+.ltrack{height:4px;background:var(--bg);border-radius:2px;margin-top:4px;overflow:hidden}
+.lfill{height:100%;border-radius:2px}
+
+/* INSIGHTS */
+.igrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.icard{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);border:1px solid var(--border)}
+.ival{font-size:24px;font-weight:600;letter-spacing:-.5px}
+.ilabel{font-size:12px;color:var(--t2);margin:4px 0 10px}
+.itrack{height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.ifill{height:100%;border-radius:3px;transition:width .6s ease}
+
+.footer{text-align:center;padding:8px 0 4px;font-size:12px;color:var(--t3)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.kcard{animation:fadeUp .5s ease both}
+.kcard:nth-child(1){animation-delay:.1s}.kcard:nth-child(2){animation-delay:.2s}
+.kcard:nth-child(3){animation-delay:.3s}.kcard:nth-child(4){animation-delay:.4s}
+</style>
+</head>
+<body>
+<div class="db">
+
+  <div class="hdr">
+    <div>
+      <h1>Olist E-commerce Sales Dashboard</h1>
+      <p>Brazilian E-Commerce Analysis &middot; Project 1 &middot; Navjot Kaur</p>
+    </div>
+    <div class="hdr-date"><span>&#128197;</span><span>2016 &ndash; 2018</span></div>
+  </div>
+
+  <div class="frow">
+    <span class="flabel">Filter by year:</span>
+    <button class="fbtn active" id="btn-all">All years</button>
+    <button class="fbtn" id="btn-2016">2016</button>
+    <button class="fbtn" id="btn-2017">2017</button>
+    <button class="fbtn" id="btn-2018">2018</button>
+  </div>
+
+  <div class="kgrid">
+    <div class="kcard">
+      <div class="ktop"><span class="klabel">Total Revenue</span><div class="kicon" style="background:#e8f2fb">&#128176;</div></div>
+      <div class="kval" id="kv-rev">R$15.8M</div>
+      <div class="ktrend up">&#8593; 8&times; growth since 2016</div>
+    </div>
+    <div class="kcard">
+      <div class="ktop"><span class="klabel">Total Orders</span><div class="kicon" style="background:#e6f7f1">&#128Shopping;</div></div>
+      <div class="kval" id="kv-ord">96,461</div>
+      <div class="ktrend up">&#8593; Delivered orders only</div>
+    </div>
+    <div class="kcard">
+      <div class="ktop"><span class="klabel">Customers</span><div class="kicon" style="background:#eeedfe">&#128101;</div></div>
+      <div class="kval" id="kv-cust">99,441</div>
+      <div class="ktrend note">3% repeat buyers</div>
+    </div>
+    <div class="kcard">
+      <div class="ktop"><span class="klabel">Avg Order Value</span><div class="kicon" style="background:#fef3e0">&#128203;</div></div>
+      <div class="kval" id="kv-avg">R$154</div>
+      <div class="ktrend note">12.5 day avg delivery</div>
+    </div>
+  </div>
+
+  <div class="crow">
+    <div class="cc">
+      <div class="chdr">
+        <div class="ctitle"><div class="cicon" style="background:#e8f2fb">&#128200;</div>Monthly Revenue Trend</div>
+        <span class="cbadge">2016&ndash;2018</span>
+      </div>
+      <canvas id="lineChart" height="200"></canvas>
+    </div>
+    <div class="cc">
+      <div class="chdr">
+        <div class="ctitle"><div class="cicon" style="background:#e8f2fb">&#128202;</div>Top 10 Categories by Revenue</div>
+        <span class="cbadge">of 71 total</span>
+      </div>
+      <canvas id="catChart" height="200"></canvas>
+    </div>
+  </div>
+
+  <div class="brow">
+    <div class="cc">
+      <div class="chdr">
+        <div class="ctitle"><div class="cicon" style="background:#e6f7f1">&#128205;</div>Revenue by State (Top 8)</div>
+        <span class="cbadge" style="background:#e6f7f1;color:#1D9E75">27 states</span>
+      </div>
+      <div class="blist" id="state-bars"></div>
+    </div>
+    <div class="cc">
+      <div class="chdr">
+        <div class="ctitle"><div class="cicon" style="background:#fef3e0">&#128179;</div>Payment Method Breakdown</div>
+        <span class="cbadge" style="background:#fef3e0;color:#EF9F27">4 types</span>
+      </div>
+      <div class="dwrap">
+        <canvas id="donutChart" width="140" height="140"></canvas>
+        <div class="dlegend" id="donut-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="igrid">
+    <div class="icard"><div class="ival" id="i0v" style="color:#1D9E75">91.9%</div><div class="ilabel" id="i0l">On-time deliveries</div><div class="itrack"><div class="ifill" id="i0b" style="width:91.9%;background:#1D9E75"></div></div></div>
+    <div class="icard"><div class="ival" id="i1v" style="color:#185FA5">37%</div><div class="ilabel" id="i1l">SP state market share</div><div class="itrack"><div class="ifill" id="i1b" style="width:37%;background:#185FA5"></div></div></div>
+    <div class="icard"><div class="ival" id="i2v" style="color:#EF9F27">R$1.18M</div><div class="ilabel" id="i2l">Best month &mdash; Nov 2017</div><div class="itrack"><div class="ifill" id="i2b" style="width:100%;background:#EF9F27"></div></div></div>
+    <div class="icard"><div class="ival" id="i3v" style="color:#e05c3a">8.1%</div><div class="ilabel" id="i3l">Late delivery rate</div><div class="itrack"><div class="ifill" id="i3b" style="width:8.1%;background:#e05c3a"></div></div></div>
+  </div>
+
+  <div class="footer">Built with Python &middot; SQL &middot; Excel &middot; Power BI &nbsp;|&nbsp; Navjot Kaur &middot; IU Berlin &middot; 2026</div>
+</div>
+
+<script>
+var PAY_NAMES = ['Credit card','Boleto','Voucher','Debit card'];
+var PAY_COLORS = ['#185FA5','#1D9E75','#EF9F27','#e05c3a'];
+var CATS = ['health_beauty','watches_gifts','bed_bath_table','sports_leisure','computers_acc','furniture_decor','housewares','cool_stuff','auto','garden_tools'];
+
+var DATA = {
+  all: {
+    kpi: {rev:'R$15.8M', ord:'96,461', cust:'99,441', avg:'R$154'},
+    line: {
+      labels:['Sep-16','Oct-16','Jan-17','Feb-17','Mar-17','Apr-17','May-17','Jun-17','Jul-17','Aug-17','Sep-17','Oct-17','Nov-17','Dec-17','Jan-18','Feb-18','Mar-18','Apr-18','May-18','Jun-18','Jul-18','Aug-18'],
+      data:[0.14,56.8,127,286,432,412,587,503,585,668,720,769,1179,864,1077,966,1155,1160,1150,1023,1059,1003]
+    },
+    cat:[1441,1306,1242,1157,1059,903,778,719,685,584],
+    states:[
+      {n:'SP',v:'R$5.9M',p:100,c:'#1D9E75'},{n:'RJ',v:'R$2.1M',p:36,c:'#1D9E75'},
+      {n:'MG',v:'R$1.9M',p:31,c:'#5dcaa5'},{n:'RS',v:'R$886K',p:15,c:'#5dcaa5'},
+      {n:'PR',v:'R$801K',p:14,c:'#9fe1cb'},{n:'BA',v:'R$612K',p:10,c:'#9fe1cb'},
+      {n:'SC',v:'R$610K',p:10,c:'#c2eed9'},{n:'DF',v:'R$353K',p:6,c:'#c2eed9'}
+    ],
+    donut:[73,19,6,2],
+    ins:[
+      {v:'91.9%',l:'On-time deliveries',p:91.9,c:'#1D9E75'},
+      {v:'37%',l:'SP state market share',p:37,c:'#185FA5'},
+      {v:'R$1.18M',l:'Best month - Nov 2017',p:100,c:'#EF9F27'},
+      {v:'8.1%',l:'Late delivery rate',p:8.1,c:'#e05c3a'}
+    ]
+  },
+  '2016': {
+    kpi:{rev:'R$57K',ord:'309',cust:'310',avg:'R$185'},
+    line:{labels:['Sep-16','Oct-16','Dec-16'],data:[0.14,56.8,0.02]},
+    cat:[8,5,4,3,7,2,1,2,3,1],
+    states:[
+      {n:'SP',v:'R$28K',p:100,c:'#1D9E75'},{n:'RJ',v:'R$10K',p:36,c:'#1D9E75'},
+      {n:'MG',v:'R$8K',p:29,c:'#5dcaa5'},{n:'RS',v:'R$4K',p:14,c:'#9fe1cb'},
+      {n:'PR',v:'R$3K',p:11,c:'#9fe1cb'},{n:'BA',v:'R$2K',p:7,c:'#c2eed9'},
+      {n:'SC',v:'R$2K',p:7,c:'#c2eed9'},{n:'DF',v:'R$1K',p:4,c:'#c2eed9'}
+    ],
+    donut:[71,21,6,2],
+    ins:[
+      {v:'88.5%',l:'On-time deliveries',p:88.5,c:'#1D9E75'},
+      {v:'49%',l:'SP state market share',p:49,c:'#185FA5'},
+      {v:'R$57K',l:'Total 2016 revenue',p:4,c:'#EF9F27'},
+      {v:'11.5%',l:'Late delivery rate',p:11.5,c:'#e05c3a'}
+    ]
+  },
+  '2017': {
+    kpi:{rev:'R$7.3M',ord:'47,083',cust:'47,892',avg:'R$155'},
+    line:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],data:[127,286,432,412,587,503,585,668,720,769,1179,864]},
+    cat:[680,610,580,540,490,420,360,330,310,270],
+    states:[
+      {n:'SP',v:'R$2.7M',p:100,c:'#1D9E75'},{n:'RJ',v:'R$980K',p:36,c:'#1D9E75'},
+      {n:'MG',v:'R$870K',p:32,c:'#5dcaa5'},{n:'RS',v:'R$410K',p:15,c:'#9fe1cb'},
+      {n:'PR',v:'R$370K',p:14,c:'#9fe1cb'},{n:'BA',v:'R$280K',p:10,c:'#c2eed9'},
+      {n:'SC',v:'R$275K',p:10,c:'#c2eed9'},{n:'DF',v:'R$160K',p:6,c:'#c2eed9'}
+    ],
+    donut:[72,20,6,2],
+    ins:[
+      {v:'92.1%',l:'On-time deliveries',p:92.1,c:'#1D9E75'},
+      {v:'37%',l:'SP state market share',p:37,c:'#185FA5'},
+      {v:'R$1.18M',l:'Best month - Nov 2017',p:100,c:'#EF9F27'},
+      {v:'7.9%',l:'Late delivery rate',p:7.9,c:'#e05c3a'}
+    ]
+  },
+  '2018': {
+    kpi:{rev:'R$8.5M',ord:'49,069',cust:'51,239',avg:'R$173'},
+    line:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'],data:[1077,966,1155,1160,1150,1023,1059,1003,170]},
+    cat:[761,696,662,617,569,483,418,389,375,314],
+    states:[
+      {n:'SP',v:'R$3.2M',p:100,c:'#1D9E75'},{n:'RJ',v:'R$1.1M',p:36,c:'#1D9E75'},
+      {n:'MG',v:'R$986K',p:31,c:'#5dcaa5'},{n:'RS',v:'R$476K',p:15,c:'#9fe1cb'},
+      {n:'PR',v:'R$431K',p:14,c:'#9fe1cb'},{n:'BA',v:'R$330K',p:10,c:'#c2eed9'},
+      {n:'SC',v:'R$335K',p:10,c:'#c2eed9'},{n:'DF',v:'R$193K',p:6,c:'#c2eed9'}
+    ],
+    donut:[74,18,6,2],
+    ins:[
+      {v:'91.8%',l:'On-time deliveries',p:91.8,c:'#1D9E75'},
+      {v:'38%',l:'SP state market share',p:38,c:'#185FA5'},
+      {v:'R$1.16M',l:'Best month - Apr 2018',p:98,c:'#EF9F27'},
+      {v:'8.2%',l:'Late delivery rate',p:8.2,c:'#e05c3a'}
+    ]
+  }
+};
+
+function renderStateBars(states) {
+  var html = '';
+  for (var i = 0; i < states.length; i++) {
+    var s = states[i];
+    html += '<div class="bitem">' +
+      '<span class="brank">' + (i+1) + '</span>' +
+      '<span class="blabel">' + s.n + '</span>' +
+      '<div class="btrack"><div class="bfill" style="width:' + s.p + '%;background:' + s.c + '"></div></div>' +
+      '<span class="bval">' + s.v + '</span>' +
+    '</div>';
+  }
+  document.getElementById('state-bars').innerHTML = html;
+}
+
+function renderDonutLegend(donut) {
+  var html = '';
+  for (var i = 0; i < donut.length; i++) {
+    html += '<div class="litem">' +
+      '<div class="ldot" style="background:' + PAY_COLORS[i] + '"></div>' +
+      '<div class="linfo">' +
+        '<div class="lrow"><span class="lname">' + PAY_NAMES[i] + '</span><span class="lpct">' + donut[i] + '%</span></div>' +
+        '<div class="ltrack"><div class="lfill" style="width:' + donut[i] + '%;background:' + PAY_COLORS[i] + '"></div></div>' +
+      '</div>' +
+    '</div>';
+  }
+  document.getElementById('donut-legend').innerHTML = html;
+}
+
+function updateInsights(ins) {
+  for (var i = 0; i < ins.length; i++) {
+    document.getElementById('i' + i + 'v').textContent = ins[i].v;
+    document.getElementById('i' + i + 'v').style.color = ins[i].c;
+    document.getElementById('i' + i + 'l').textContent = ins[i].l;
+    document.getElementById('i' + i + 'b').style.width = ins[i].p + '%';
+    document.getElementById('i' + i + 'b').style.background = ins[i].c;
+  }
+}
+
+// CHARTS
+var lineCtx = document.getElementById('lineChart').getContext('2d');
+var grad = lineCtx.createLinearGradient(0,0,0,200);
+grad.addColorStop(0,'rgba(24,95,165,.15)');
+grad.addColorStop(1,'rgba(24,95,165,0)');
+
+var lineChart = new Chart(lineCtx, {
+  type:'line',
+  data:{
+    labels: DATA.all.line.labels,
+    datasets:[{
+      data: DATA.all.line.data,
+      borderColor:'#185FA5', borderWidth:2.5,
+      fill:true, backgroundColor:grad,
+      tension:.4, pointRadius:3,
+      pointBackgroundColor:'#185FA5',
+      pointBorderColor:'#fff', pointBorderWidth:1.5,
+      pointHoverRadius:5
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{
+      legend:{display:false},
+      tooltip:{backgroundColor:'#1a3a5c',callbacks:{label:function(c){return ' R$'+c.raw+'K'}}}
+    },
+    scales:{
+      x:{grid:{display:false},ticks:{font:{size:10},color:'#94a3b8',maxRotation:45}},
+      y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:10},color:'#94a3b8',callback:function(v){return v>=1000?'R$'+(v/1000).toFixed(1)+'M':'R$'+v+'K'}}}
+    }
+  }
+});
+
+var catColors = CATS.map(function(_,i){return 'rgba(24,95,165,'+(1-i*0.07)+')'});
+var catChart = new Chart(document.getElementById('catChart').getContext('2d'), {
+  type:'bar',
+  data:{labels:CATS, datasets:[{data:DATA.all.cat, backgroundColor:catColors, borderRadius:4, borderSkipped:false}]},
+  options:{
+    indexAxis:'y', responsive:true,
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a3a5c',callbacks:{label:function(c){return ' R$'+c.raw+'K'}}}},
+    scales:{
+      x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10},color:'#94a3b8',callback:function(v){return 'R$'+v+'K'}}},
+      y:{grid:{display:false},ticks:{font:{size:11},color:'#64748b'}}
+    }
+  }
+});
+
+var donutChart = new Chart(document.getElementById('donutChart').getContext('2d'), {
+  type:'doughnut',
+  data:{
+    labels:PAY_NAMES,
+    datasets:[{data:DATA.all.donut, backgroundColor:PAY_COLORS, borderWidth:2, borderColor:'#fff', hoverOffset:4}]
+  },
+  options:{cutout:'68%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a3a5c',callbacks:{label:function(c){return ' '+c.label+': '+c.raw+'%'}}}}}
+});
+
+// INIT
+renderStateBars(DATA.all.states);
+renderDonutLegend(DATA.all.donut);
+
+// FILTER
+function filterYear(year) {
+  var d = DATA[year];
+  document.querySelectorAll('.fbtn').forEach(function(b){b.classList.remove('active')});
+  document.getElementById('btn-' + year).classList.add('active');
+
+  document.getElementById('kv-rev').textContent = d.kpi.rev;
+  document.getElementById('kv-ord').textContent = d.kpi.ord;
+  document.getElementById('kv-cust').textContent = d.kpi.cust;
+  document.getElementById('kv-avg').textContent = d.kpi.avg;
+
+  lineChart.data.labels = d.line.labels;
+  lineChart.data.datasets[0].data = d.line.data;
+  lineChart.update();
+
+  catChart.data.datasets[0].data = d.cat;
+  catChart.update();
+
+  donutChart.data.datasets[0].data = d.donut;
+  donutChart.update();
+
+  renderStateBars(d.states);
+  renderDonutLegend(d.donut);
+  updateInsights(d.ins);
+}
+
+document.getElementById('btn-all').onclick = function(){filterYear('all')};
+document.getElementById('btn-2016').onclick = function(){filterYear('2016')};
+document.getElementById('btn-2017').onclick = function(){filterYear('2017')};
+document.getElementById('btn-2018').onclick = function(){filterYear('2018')};
+</script>
+</body>
+</html>
